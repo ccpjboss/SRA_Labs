@@ -1,0 +1,36 @@
+
+---------------------------------------
+TurtleBot.m class Release Notes
+---------------------------------------
+Autonomous Robotic Systems 2022, DEEC, UC 
+
+
+# v03 (13/03/2022) 
+
+TurtleBot.m class v03 update:  
+
+- Updated setPose(x,y,theta) and resetPose() functions (improvements and bug fixes).
+- The setVelocity(v,w) now clips the velocities (v,w) by the maximum allowed by the robot (v_max = 0.22 m/s, w_max = 2.84 rad/s).
+- The readLidar() function also returns readings to Cartesian coordinates.
+
+
+
+# v02 (25/02/2022) 
+
+TurtleBot.m class v02 update: 
+
+- Usability improvements in the constructor:  the robot's object can be initialized as tbot = TurtleBot(IP_TURTLEBOT, IP_HOST_COMPUTER) directly (however, the standard constructor remains available). 
+- All angles are now expressed in radians. Please make the necessary adjustments on your code. 
+- New resetPose() method that allows to reset the location to the robot in gazebo (without the need of manual intervention).
+- New setPose(x,y,theta) method that allows to place the robot at a given pose. 
+- Note: resetPose() and  setPose(.) functions only work when using gazebo (not in the real TurtleBot robot). 
+
+The previously provided demos (demoPose.m and demoLidar.m) were also been updated with some of these features.  
+
+
+
+# v01 
+
+- initial release. 
+
+
