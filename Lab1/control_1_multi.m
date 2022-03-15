@@ -1,5 +1,6 @@
 clearvars -except tbot
 close all
+
 global handle_v handle_w handle_d
 
 n_points = input('How many points?');
@@ -8,6 +9,7 @@ title(['How many points?'])
 grid
 axis([-2, 2, -2, 2])                
 [xi,yi]=ginput(n_points);
+
 hold off
 for j=1:n_points
     goal_pose(j,1) = xi(j);
