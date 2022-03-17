@@ -5,7 +5,7 @@ if ( ~exist("tbot") )
     % Note: edit TurtleBot.m to define the robot and local host IP addresses
     tbot = TurtleBot(); 
 end
-
+addpath include/
 map = read_map('maps/csquare_grid5.png');
 
 Kv = 0.3;
