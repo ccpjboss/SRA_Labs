@@ -1,7 +1,6 @@
 function [active_cells] = getActiveArea(robotPose,map,N)
 
-robot_x_cell = round(size(map,1)*robotPose(1)/4);
-robot_y_cell = round(size(map,1)*robotPose(2)/4);
+[robot_x_cell, robot_y_cell] = world2grid(robotPose(1), robotPose(2),size(map,1));
 
 low_limit_x = max(1,floor(robot_x_cell-N/2));
 high_limit_x = min(size(map,1),floor(robot_x_cell+N/2));
