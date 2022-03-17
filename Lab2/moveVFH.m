@@ -1,5 +1,6 @@
 close all
 clearvars -except tbot
+addpath include/
 
 % init TurtleBot connection (tbot object), if required
 if ( ~exist("tbot") ) 
