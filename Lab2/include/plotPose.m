@@ -1,6 +1,7 @@
-function plotPose(x, y, theta,map)
+function plotPose(x, y, theta,x_,y_,map)
     figure(1); clf; hold on;            % clear figure, hold plots
     plot(x, y,'--or', 'MarkerSize', 10)  % display (x,y) location of the robot
+    plot(x_(1:5:end), y_(1:5:end),'--')
     quiver(x,y,cos(theta),sin(theta), 0.1, 'Color','r','LineWidth',1, 'ShowArrowHead',1)
     quiver(0,0,1,0,'r')                 % draw arrow for x-axis 
     quiver(0,0,0,1,'g')                 % draw arrow for y-axis 

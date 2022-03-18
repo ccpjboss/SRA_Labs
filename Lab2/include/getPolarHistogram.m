@@ -1,12 +1,13 @@
-function h_smooth = getPolarHistogram(world_y, y, world_x, x, alpha)
-    beta_cells = atan2(world_y-y,world_x-x);
+function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
+    beta_cells = atan2((world_y-y),(world_x-x));
     beta_cells = beta_cells+2*pi*(beta_cells<0);
+
     dist_cells = sqrt((world_x-x).^2+(world_y-y).^2);
     a = max(dist_cells);
     b = 1;
     m = 1.*(a-b.*dist_cells);
     
-    k = ceil(beta_cells./alpha);
+    k = ceil(beta_cells/alpha);
     
     h = zeros(1,2*pi/alpha);
 
@@ -14,7 +15,7 @@ function h_smooth = getPolarHistogram(world_y, y, world_x, x, alpha)
         h(k(i)) = h(k(i)) + m(i);
     end
 
-    L = 2; 
+    L = 4; 
     h_length = size(h,2);       %get length of sector array
     h_padded = [zeros(1,L),h(1,:),zeros(1,L)];   %padding h with zeros on the ends to make average calculations
     hp_sum = zeros(1,h_length); %initialize array for summation of sector values
@@ -32,4 +33,5 @@ function h_smooth = getPolarHistogram(world_y, y, world_x, x, alpha)
         hp_sum(i-L) = sum(h_padded((i-L):(i+L-1)).*weightArray);    %sector summing array
     end
     h_smooth = hp_sum./div; %calculate H'
+%       h_smooth = h;
 end
