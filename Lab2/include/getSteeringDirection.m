@@ -21,7 +21,7 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha)
 
     k_target = atan2(goal_pose(2)-y,goal_pose(1)-x);
     k_target = k_target + 2*pi*(k_target<0);
-    ktarg = ceil(k_target/alpha);
+    ktarg = ceil(k_target/alpha)
     if ktarg == 0
             ktarg = 1;
     end
@@ -43,13 +43,15 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha)
         end
     end
 
-    smax = 5;
+    smax = 10;
 
     if (abs(chosenValley(1) - chosenValley(2)) > smax)
+        fprintf("WIDE VALLEY\n");
         sectors = chosenValley(1):chosenValley(2);
         [~,kn] = min(abs(sectors-ktarg));
-        go_theta = kn*rad2deg(alpha) + 0.5*rad2deg(alpha)*smax;
+        go_theta = sectors(kn)*rad2deg(alpha);
     else
+        fprintf("NARROW VALLEY\n");
         go_theta = 0.5*(chosenValley(1)*rad2deg(alpha)+chosenValley(2)*rad2deg(alpha));
     end
 end
