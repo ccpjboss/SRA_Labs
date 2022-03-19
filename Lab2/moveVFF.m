@@ -6,15 +6,19 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end
 addpath include/
-map = read_map('maps/csquare_grid5.png');
+map = read_map('maps/fmap_grid5.png');
 
-Kv = 0.3;
-Ki = 0.5;
+Kv = 0.6;
+Ki = 0.2;
 Ks = 0.5;
 
-dk = 2;
+dk = 0.1;
+tbot.resetPose();
+tbot.setPose(0.5,0.5,-0);
+[x,y,theta] = tbot.readPose();
+goalPose = [3.5 3.5 pi/2];
+dist = sqrt((goalPose(1)-x)^2+(goalPose(2)-y)^2);
 
-goalPose = [1 1 pi/2];
 x_= [];
 y_=[];
 
@@ -23,16 +27,15 @@ erroAnterior=0;
 
 last_update = tic;
 
-dist = 1;
+while (dist>0.1)
 
-while dist > 0.05
+    plotPose(x,y,theta,x_,y_,map);
 
-    [x, y, theta] = tbot.readPose();
-    x = x * 100;
-    y = y * 100;
-    dist = norm(goalPose(1:2)-[x, y]);
+    active_cells = getActiveArea([x,y],map,30);
+    [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
+    active_cells_world = [world_x, world_y];
 
-    [frx,fry,fox,foy]=VFF(tbot,map,goalPose);
+    [frx,fry,fox,foy]=VFF(tbot,map,world_x, world_y,goalPose);
 
     nPose(1) = x + frx;
     nPose(2) = y + fry;
@@ -49,25 +52,12 @@ while dist > 0.05
     wRobot = Ks*atan2(sin(nPose(3)-theta),cos(nPose(3)-theta));
 
     tbot.setVelocity(vRobot, wRobot);
-    x_ = [x_ x];
-    y_ = [y_ y];
+
+    [x,y,theta] = tbot.readPose();
+    %x_ = [x_ x];
+    %y_ = [y_ y];
+    dist = sqrt((goalPose(1)-x)^2+(goalPose(2)-y)^2);
 
 end
 
-tbot.resetPose();
-
-function plot_pose(x, y, theta, goal_pose, x_, y_)
-    figure(1); clf; hold on;            % clear figure, hold plots
-    plot(x, y,'--or', 'MarkerSize', 10)  % display (x,y) location of the robot
-    plot(goal_pose(1), goal_pose(2),'bx', 'MarkerSize', 5)
-    quiver(x,y,cos(theta),sin(theta), 0.1, 'Color','r','LineWidth',1, 'ShowArrowHead',1)
-    %line([0 x], [0 y], 'LineStyle', '--')
-    plot(x_(1:5:end), y_(1:5:end),'--')
-    quiver(0,0,1,0,'r')                 % draw arrow for x-axis 
-    quiver(0,0,0,1,'g')                 % draw arrow for y-axis 
-    axis([-2, 2, -2, 2])                % the limits for the current axes [xmin xmax ymin ymax]
-    grid on;                            % enable grid 
-    xlabel('x')                         % axis labels 
-    ylabel('y')
-    pause(0.1)
-end
+tbot.stop();
