@@ -1,18 +1,21 @@
 function plotPose(x, y, theta,x_,y_,map)
-    figure(1); clf; hold on;            % clear figure, hold plots
+    figure(1); clf;             % clear figure, hold plots
+    hold on;
     plot(x, y,'--or', 'MarkerSize', 10)  % display (x,y) location of the robot
     plot(x_(1:5:end), y_(1:5:end),'--')
     quiver(x,y,cos(theta),sin(theta), 0.1, 'Color','r','LineWidth',1, 'ShowArrowHead',1)
     quiver(0,0,1,0,'r')                 % draw arrow for x-axis 
     quiver(0,0,0,1,'g')                 % draw arrow for y-axis 
     axis([0, 4, 0, 4])                % the limits for the current axes [xmin xmax ymin ymax]
-    grid on;                            % enable grid 
+    grid on;
+    grid minor;% enable grid 
     xlabel('x')                         % axis labels 
     ylabel('y')
 
     [map_y,map_x] = find(map);
     scatter(map_y./20,map_x./20,120,"black","filled")
-    pause(0.1)
+%     pause(0.1)
+
 end
 
 

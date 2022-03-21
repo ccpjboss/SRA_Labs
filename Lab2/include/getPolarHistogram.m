@@ -1,6 +1,12 @@
 function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
-    beta_cells = atan2((world_y-y),(world_x-x));
+    beta_cells = atan2((world_y-y),(world_x-x))-theta;
+
     beta_cells = beta_cells+2*pi*(beta_cells<0);
+
+    figure(2)
+    subplot(2,1,2)
+    polarhistogram(beta_cells,"FaceColor",'red','Normalization','countdensity');
+    rlim([0 1]);
 
     dist_cells = sqrt((world_x-x).^2+(world_y-y).^2);
     a = max(dist_cells);
