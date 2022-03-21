@@ -8,13 +8,36 @@ end
 addpath include/
 map = read_map('maps/csquare_grid5.png');
 
-Kv = 0.3;
-Ki = 0.5;
-Ks = 0.5;
+n_points = input('How many points?');
+figure(1);
+title(['How many points?'])
+figure(1);
+[map_y,map_x] = find(map);
+scatter(map_y./20,map_x./20,120,"black","filled")
+axis([0, 4, 0, 4])                % the limits for the current axes [xmin xmax ymin ymax]
+grid on;             
+[xi,yi]=ginput(n_points);
 
-dk = 2;
+hold off
+for j=1:n_points
+    goalPose(j,1) = xi(j);
+    goalPose(j,2) = yi(j);
+    hold on
+    if (j == n_points)
+        plot(goalPose(j,1),goalPose(j,2),'gx', 'MarkerSize', 5); %display locations of points
+    else
+        plot(goalPose(j,1),goalPose(j,2),'bx', 'MarkerSize', 5); %display locations of points
+    end
+end
 
-goalPose = [1 1 pi/2];
+Kv = 0.5;
+Ki = 0.3;
+Ks = 0.6;
+
+dk = 0.1;
+tbot.setPose(0.5,0.5,-0);
+[x,y,theta] = tbot.readPose();
+
 x_= [];
 y_=[];
 
@@ -25,49 +48,40 @@ last_update = tic;
 
 dist = 1;
 
-while dist > 0.05
-
-    [x, y, theta] = tbot.readPose();
-    x = x * 100;
-    y = y * 100;
-    dist = norm(goalPose(1:2)-[x, y]);
-
-    [frx,fry,fox,foy]=VFF(tbot,map,goalPose);
-
-    nPose(1) = x + frx;
-    nPose(2) = y + fry;
-
-    error = norm(nPose(1:2) - [x, y]) - dk;
-
-    vRobot = Kv*error+Ki*((error-erroAnterior)/2)*toc(last_update);
-    last_update = tic;
-
-    erroAnterior = error; %Erro anterior para o caluculo da velocidade
-
-    % Computes angular velocity
-    nPose(3) = atan2(nPose(2)-y,nPose(1)-x);
-    wRobot = Ks*atan2(sin(nPose(3)-theta),cos(nPose(3)-theta));
-
-    tbot.setVelocity(vRobot, wRobot);
-    x_ = [x_ x];
-    y_ = [y_ y];
-
+for j = 1:n_points
+    dist = 1;
+    while (dist>0.1)
+    
+        plotPose(x,y,theta,x_,y_,map, goalPose, n_points);
+    
+        active_cells = getActiveArea([x,y],map,20);
+        [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
+        active_cells_world = [world_x, world_y];
+    
+        [frx,fry,fox,foy]=VFF(tbot,world_x, world_y,goalPose(j,:));
+    
+        nPose(1) = x + frx;
+        nPose(2) = y + fry;
+    
+        error = norm(nPose(1:2) - [x, y]) - dk;
+    
+        vRobot = Kv*error+Ki*((error-erroAnterior)/2)*toc(last_update);
+        last_update = tic;
+    
+        erroAnterior = error; %Erro anterior para o caluculo da velocidade
+    
+        % Computes angular velocity
+        nPose(3) = atan2(nPose(2)-y,nPose(1)-x);
+        wRobot = Ks*atan2(sin(nPose(3)-theta),cos(nPose(3)-theta));
+    
+        tbot.setVelocity(vRobot, wRobot);
+    
+        [x,y,theta] = tbot.readPose();
+        x_ = [x_ x];
+        y_ = [y_ y];
+        dist = sqrt((goalPose(j,1)-x)^2+(goalPose(j,2)-y)^2);
+    
+    end
 end
 
-tbot.resetPose();
-
-function plot_pose(x, y, theta, goal_pose, x_, y_)
-    figure(1); clf; hold on;            % clear figure, hold plots
-    plot(x, y,'--or', 'MarkerSize', 10)  % display (x,y) location of the robot
-    plot(goal_pose(1), goal_pose(2),'bx', 'MarkerSize', 5)
-    quiver(x,y,cos(theta),sin(theta), 0.1, 'Color','r','LineWidth',1, 'ShowArrowHead',1)
-    %line([0 x], [0 y], 'LineStyle', '--')
-    plot(x_(1:5:end), y_(1:5:end),'--')
-    quiver(0,0,1,0,'r')                 % draw arrow for x-axis 
-    quiver(0,0,0,1,'g')                 % draw arrow for y-axis 
-    axis([-2, 2, -2, 2])                % the limits for the current axes [xmin xmax ymin ymax]
-    grid on;                            % enable grid 
-    xlabel('x')                         % axis labels 
-    ylabel('y')
-    pause(0.1)
-end
+tbot.stop();

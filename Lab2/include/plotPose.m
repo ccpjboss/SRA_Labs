@@ -1,6 +1,6 @@
-function plotPose(x, y, theta,x_,y_,map)
-    figure(1); clf;             % clear figure, hold plots
-    hold on;
+
+function plotPose(x, y, theta,x_,y_,map, goalPose, n_points)
+    figure(1); clf; hold on; % clear figure, hold plots
     plot(x, y,'--or', 'MarkerSize', 10)  % display (x,y) location of the robot
     plot(x_(1:5:end), y_(1:5:end),'--')
     quiver(x,y,cos(theta),sin(theta), 0.1, 'Color','r','LineWidth',1, 'ShowArrowHead',1)
@@ -11,6 +11,16 @@ function plotPose(x, y, theta,x_,y_,map)
     grid minor;% enable grid 
     xlabel('x')                         % axis labels 
     ylabel('y')
+
+    for j = 1:n_points
+        if (j == n_points)
+            plot(goalPose(j,1),goalPose(j,2),'gx', 'MarkerSize', 5); %display locations of points
+        else
+            plot(goalPose(j,1),goalPose(j,2),'bx', 'MarkerSize', 5); %display locations of points
+        end
+
+    end
+
 
     [map_y,map_x] = find(map);
     scatter(map_y./20,map_x./20,120,"black","filled")
