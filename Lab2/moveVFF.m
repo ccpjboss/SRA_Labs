@@ -8,12 +8,11 @@ end
 addpath include/
 map = read_map('maps/fmap_grid5.png');
 
-Kv = 0.6;
-Ki = 0.2;
-Ks = 0.5;
+Kv = 0.5;
+Ki = 0.3;
+Ks = 0.6;
 
 dk = 0.1;
-tbot.resetPose();
 tbot.setPose(0.5,0.5,-0);
 [x,y,theta] = tbot.readPose();
 goalPose = [3.5 3.5 pi/2];
@@ -31,11 +30,11 @@ while (dist>0.1)
 
     plotPose(x,y,theta,x_,y_,map);
 
-    active_cells = getActiveArea([x,y],map,30);
+    active_cells = getActiveArea([x,y],map,20);
     [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
     active_cells_world = [world_x, world_y];
 
-    [frx,fry,fox,foy]=VFF(tbot,map,world_x, world_y,goalPose);
+    [frx,fry,fox,foy]=VFF(tbot,world_x, world_y,goalPose);
 
     nPose(1) = x + frx;
     nPose(2) = y + fry;
@@ -54,8 +53,8 @@ while (dist>0.1)
     tbot.setVelocity(vRobot, wRobot);
 
     [x,y,theta] = tbot.readPose();
-    %x_ = [x_ x];
-    %y_ = [y_ y];
+    x_ = [x_ x];
+    y_ = [y_ y];
     dist = sqrt((goalPose(1)-x)^2+(goalPose(2)-y)^2);
 
 end

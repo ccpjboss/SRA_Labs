@@ -8,7 +8,6 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end
 
-tbot.resetPose();
 tbot.setPose(0.5,0.5,-0);
 goal_pose = [3.5,3.5];
 dk = 0.1;
