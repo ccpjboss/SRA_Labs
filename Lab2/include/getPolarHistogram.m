@@ -1,5 +1,5 @@
 function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
-    beta_cells = atan2((world_y-y),(world_x-x))-theta;
+    beta_cells = atan2((world_y-y),(world_x-x));
 
     beta_cells = beta_cells+2*pi*(beta_cells<0);
 

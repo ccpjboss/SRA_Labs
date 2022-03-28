@@ -1,8 +1,8 @@
-function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha)
+function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha,theta)
     wrapN = @(x, N) (1 + mod(x-1, N));
 
     %Apply threshold
-    h_smooth(h_smooth < 0.15) = 0;
+    h_smooth(h_smooth < 0.01) = 0;
 
     %Histogram of 1s and 0s
     Hp1 = zeros(1,size(h_smooth,2));
@@ -20,15 +20,17 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha)
             k_target = 1;
     end
 
-    %Check if empty target bin
-    if(Hp1(k_target) == 0)
-        if (Hp1(wrapN(k_target-2,36)) == 0 && Hp1(wrapN(k_target-1,36)) == 0 && Hp1(wrapN(k_target+2,36)) == 0 && Hp1(wrapN(k_target+1,36)) == 0)
-            go_theta = k_target*rad2deg(alpha);
-            return
-        end
-    end
-
     %% !! CHANGE !!
+%     i = 1;
+%     aux = 1;
+%     while(aux ~= 0)
+%         if (rem(i,2) == 0)
+%             aux = Hp1(wrapN(9-i),36);
+%         else
+%             aux = Hp1(wrapN(9+i),36);
+%         end
+%         i=i+1;
+%     end
     
     b1=(find(diff(Hp1)==-1)); %Find beginning of consecutive clear sectors
     b1 = b1 + 1;
@@ -60,13 +62,14 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha)
         end
     end
 
-    smax = 10;
+    smax = 8;
     
     if (abs(chosenValley(1) - chosenValley(end)) > smax)
         fprintf("WIDE VALLEY\n");
         sectors = chosenValley(1):chosenValley(end);
         [~,kn] = min(abs(sectors-k_target));
-        go_theta = sectors(kn)*rad2deg(alpha)+0.5*rad2deg(alpha)*smax;
+        kf = sec    
+        go_theta = sectors(kn)*rad2deg(alpha);
     else
         fprintf("NARROW VALLEY\n");
         go_theta = 0.5*(chosenValley(1)*rad2deg(alpha)+chosenValley(end)*rad2deg(alpha));

@@ -8,8 +8,8 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end
 
-tbot.setPose(0.5,0.5,pi/2);
-goal_pose = [2.5,2.5];
+tbot.setPose(0.5,3.5,pi);
+goal_pose = [3.5,2];
 dk = 0.1;
 
 map = read_map("./maps/fmap_grid5.png");
@@ -29,18 +29,18 @@ h_smooth = [];
 
 while (dist>0.05)
     plotPose(x,y,theta,x_,y_,map);
-    active_cells = getActiveArea([x,y],map,30);
+    active_cells = getActiveArea([x,y],map,35);
     [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
     active_cells_world = [world_x, world_y];
 
     h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha);
     drawHistogram(h_smooth);
 
-    [go_theta_deg] = getSteeringDirection(h_smooth, goal_pose, x, y, alpha);
+    [go_theta_deg] = getSteeringDirection(h_smooth, goal_pose, x, y, alpha,theta);
     go_theta_rad = deg2rad(go_theta_deg);
     
-    nPose(1) = x + 0.25*cos(go_theta_rad);
-    nPose(2) = y + 0.25*sin(go_theta_rad);
+    nPose(1) = x + 0.3*cos(go_theta_rad);
+    nPose(2) = y + 0.3*sin(go_theta_rad);
 
     figure(1);
     hold on;
