@@ -41,6 +41,7 @@ properties (Access = private)
             IP_HOST_COMPUTER = "192.168.1.183";         % LOCAL IP
 
 
+
         elseif (nargin ==2 )                            % two input args
             IP_TURTLEBOT = varargin{1};                 % Assign 1st input arg
             IP_HOST_COMPUTER = varargin{2};             % Assign 2nd input arg
