@@ -1,4 +1,4 @@
-function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
+function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha, window_size)
     beta_cells = atan2((world_y-y),(world_x-x));
     beta_cells = beta_cells+2*pi*(beta_cells<0);
 
@@ -7,7 +7,8 @@ function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
     polarhistogram(beta_cells,"FaceColor",'red');
 
     dist_cells = sqrt((world_x-x).^2+(world_y-y).^2);
-    a = max(dist_cells);
+    dmax = sqrt(2) * (window_size-1)/2;
+    a = dmax;
     b = 1;
     m = 1.*(a-b.*dist_cells);
     

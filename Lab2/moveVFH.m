@@ -19,6 +19,7 @@ scatter(map_y./20,map_x./20,120,"black","filled")
 axis([0, 4, 0, 4])                % the limits for the current axes [xmin xmax ymin ymax]
 grid on;             
 [xi,yi]=ginput(n_points);
+window_size = 30;
 
 hold off
 for j=1:n_points
@@ -54,11 +55,11 @@ for j=1:n_points
     dist = sqrt((goalPose(j,1)-x)^2+(goalPose(j,2)-y)^2);
     while (dist>0.15)
         plotPose(x,y,theta,x_,y_,map,goalPose,n_points);
-        active_cells = getActiveArea([x,y],map,25);
+        active_cells = getActiveArea([x,y],map,window_size);
         [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
         active_cells_world = [world_x, world_y];
     
-        h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha);
+        h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha,window_size);
         drawHistogram(h_smooth);
     
         [go_theta_deg] = getSteeringDirection(h_smooth, goalPose(j,:), x, y, alpha, theta);
