@@ -36,9 +36,10 @@ properties (Access = private)
         if (nargin == 0)                                % no input args
 
             % -> REQUIRES MANUALLY SETTING THE IP ADDRESSES 
-            IP_TURTLEBOT = "172.16.218.129";             % VIRTUAL MACHINE IP 
-            %IP_HOST_COMPUTER = "10.101.220.144";               % TURTLE ROBOT IP 
-            IP_HOST_COMPUTER = "192.168.1.188";         % LOCAL IP
+            IP_TURTLEBOT = "192.168.99.132";             % VIRTUAL MACHINE IP 
+            %IP_TURTLEBOT = "10.206.7.1";               % TURTLE ROBOT IP 
+            IP_HOST_COMPUTER = "192.168.1.183";         % LOCAL IP
+
 
 
         elseif (nargin ==2 )                            % two input args

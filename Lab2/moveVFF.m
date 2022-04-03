@@ -1,4 +1,5 @@
 clearvars -except tbot
+close all
 
 % init TurtleBot connection (tbot object), if required
 if ( ~exist("tbot") ) 
@@ -6,11 +7,9 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end
 addpath include/
-map = read_map('maps/csquare_grid5.png');
+map = read_map('maps/umap_grid5.png');
 
 n_points = input('How many points?');
-figure(1);
-title(['How many points?'])
 figure(1);
 [map_y,map_x] = find(map);
 scatter(map_y./20,map_x./20,120,"black","filled")
@@ -32,7 +31,7 @@ end
 
 Kv = 0.5;
 Ki = 0.3;
-Ks = 0.6;
+Ks = 0.7;
 
 dk = 0.1;
 tbot.setPose(0.5,0.5,-0);
@@ -40,6 +39,8 @@ tbot.setPose(0.5,0.5,-0);
 
 x_= [];
 y_=[];
+
+nPose = [0 0 0];
 
 i=1;
 erroAnterior=0;
@@ -52,7 +53,7 @@ for j = 1:n_points
     dist = 1;
     while (dist>0.1)
     
-        plotPose(x,y,theta,x_,y_,map, goalPose, n_points);
+        plotPose(x,y,theta,x_,y_,map, goalPose, n_points, nPose);
     
         active_cells = getActiveArea([x,y],map,20);
         [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
