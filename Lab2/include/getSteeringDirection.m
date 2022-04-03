@@ -1,6 +1,6 @@
 function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta)
     %Apply threshold
-    h_smooth(h_smooth < 0.2) = 0;
+    h_smooth(h_smooth < 0.3) = 0;
 
     %Histogram of 1s and 0s
     Hp1 = zeros(1,size(h_smooth,2));
@@ -18,7 +18,9 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
             k_target = 1;
     end
     
-    if (all(h_smooth == 0))
+    dist = sqrt((goal_pose(1)-x)^2+(goal_pose(2)-y)^2);
+
+    if (all(h_smooth == 0)) || dist < 0.25
         go_theta = k_target*rad2deg(alpha);
         return 
     end
@@ -48,12 +50,12 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
     end
             
 
-    dist=min(mod((real_passages - k_target),72/2), mod((k_target - real_passages),72/2))
+    dist=min(mod((real_passages - k_target),36), mod((k_target - real_passages),36));
     if (dist(1) == dist(2))
         dist(2) = 100000;
     end
-    [r,c] = find(dist==min(dist(:)));       
-    chosenValley = real_passages(r,:);
+    [r,c] = find(dist==min(dist(:)),1);       
+    chosenValley = real_passages(r,:)
     k_chossen = chosenValley(1,c);
 
     %The distance might be the same to two valleys, so we pick the larger one
@@ -69,7 +71,7 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
         end
     end
 
-    smax = 18;
+    smax = 9;
     
     if (abs(chosenValley(1) - chosenValley(end)) > smax)
         fprintf("WIDE VALLEY\n");

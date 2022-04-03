@@ -12,14 +12,13 @@ function plotPose(x, y, theta,x_,y_,map, goalPose, n_points)
     xlabel('x')                         % axis labels 
     ylabel('y')
 
-%     for j = 1:n_points
-%         if (j == n_points)
-%             plot(goalPose(j,1),goalPose(j,2),'gx', 'MarkerSize', 5); %display locations of points
-%         else
-%             plot(goalPose(j,1),goalPose(j,2),'bx', 'MarkerSize', 5); %display locations of points
-%         end
-% 
-%     end
+    for j = 1:n_points
+        if (j == n_points)
+            plot(goalPose(j,1),goalPose(j,2),'gx', 'MarkerSize', 5); %display locations of points
+        else
+            plot(goalPose(j,1),goalPose(j,2),'bx', 'MarkerSize', 5); %display locations of points
+        end
+    end
 
 
     [map_y,map_x] = find(map);

@@ -19,7 +19,7 @@ function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
         h(k(i)) = h(k(i)) + m(i);
     end
 
-    L = 5; 
+    L = 2; 
     h_length = size(h,2);       %get length of sector array
     h_padded = [zeros(1,L),h(1,:),zeros(1,L)];   %padding h with zeros on the ends to make average calculations
     hp_sum = zeros(1,h_length); %initialize array for summation of sector values
