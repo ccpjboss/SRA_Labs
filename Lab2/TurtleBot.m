@@ -38,7 +38,7 @@ properties (Access = private)
             % -> REQUIRES MANUALLY SETTING THE IP ADDRESSES 
             IP_TURTLEBOT = "192.168.99.132";             % VIRTUAL MACHINE IP 
             %IP_TURTLEBOT = "10.206.7.1";               % TURTLE ROBOT IP 
-            IP_HOST_COMPUTER = "192.168.1.183";         % LOCAL IP
+            IP_HOST_COMPUTER = "192.168.1.188";         % LOCAL IP
 
 
 
