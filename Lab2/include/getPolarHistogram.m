@@ -1,12 +1,10 @@
 function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
     beta_cells = atan2((world_y-y),(world_x-x));
-
     beta_cells = beta_cells+2*pi*(beta_cells<0);
 
     figure(2)
     subplot(2,1,2)
-    polarhistogram(beta_cells,"FaceColor",'red','Normalization','countdensity');
-    rlim([0 1]);
+    polarhistogram(beta_cells,"FaceColor",'red');
 
     dist_cells = sqrt((world_x-x).^2+(world_y-y).^2);
     a = max(dist_cells);
@@ -21,7 +19,7 @@ function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha)
         h(k(i)) = h(k(i)) + m(i);
     end
 
-    L = 4; 
+    L = 5; 
     h_length = size(h,2);       %get length of sector array
     h_padded = [zeros(1,L),h(1,:),zeros(1,L)];   %padding h with zeros on the ends to make average calculations
     hp_sum = zeros(1,h_length); %initialize array for summation of sector values
