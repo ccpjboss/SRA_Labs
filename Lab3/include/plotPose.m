@@ -1,4 +1,3 @@
-
 function plotPose(x, y, theta,x_,y_,map, goalPose, n_points, nPose)
     figure(1); clf; hold on; % clear figure, hold plots
     plot(x, y,'--or', 'MarkerSize', 10)  % display (x,y) location of the robot
