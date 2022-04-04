@@ -8,7 +8,7 @@ if ( ~exist("tbot",'var') )
     tbot = TurtleBot(); 
 end
 
-map = read_map("./maps/umap_grid5.png");
+map = read_map("./maps/fmap_grid5.png");
 
 n_points = input('How many points?');
 figure(1);
@@ -47,6 +47,8 @@ kv = 0.5;
 ki = 0.2;
 ks = 0.7;
 
+nPose = [0 0 0];
+
 x_ = [];
 y_ = [];
 h_smooth = [];
@@ -54,7 +56,7 @@ h_smooth = [];
 for j=1:n_points
     dist = sqrt((goalPose(j,1)-x)^2+(goalPose(j,2)-y)^2);
     while (dist>0.15)
-        plotPose(x,y,theta,x_,y_,map,goalPose,n_points);
+        plotPose(x,y,theta,x_,y_,map,goalPose,n_points, nPose);
         active_cells = getActiveArea([x,y],map,window_size);
         [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
         active_cells_world = [world_x, world_y];
