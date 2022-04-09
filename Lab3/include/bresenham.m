@@ -1,4 +1,4 @@
-function [x y]=bresenham(x1,y1,x2,y2)
+function [x, y]=bresenham(x1,y1,x2,y2)
 %Matlab optmized version of Bresenham line algorithm. No loops.
 %Format:
 %               [x y]=bham(x1,y1,x2,y2)
@@ -15,15 +15,15 @@ function [x y]=bresenham(x1,y1,x2,y2)
 %               plot(x,y,'or');
 x1=round(x1); x2=round(x2);
 y1=round(y1); y2=round(y2);
-dx=abs(x2-x1)
-dy=abs(y2-y1)
-steep=abs(dy)>abs(dx)
+dx=abs(x2-x1);
+dy=abs(y2-y1);
+steep=abs(dy)>abs(dx);
 if steep t=dx;dx=dy;dy=t; end
 %The main algorithm goes here.
 if dy==0 
     q=zeros(dx+1,1);
 else
-    q=[0;diff(mod([floor(dx/2):-dy:-dy*dx+floor(dx/2)]',dx))>=0]
+    q=[0;diff(mod([floor(dx/2):-dy:-dy*dx+floor(dx/2)]',dx))>=0];
 end
 %and ends here.
 if steep
