@@ -1,18 +1,19 @@
-function [active_cells] = getActiveArea(robotPose,map,N)
+function [active_cells] = getActiveArea(robotPose,map,xCell, yCell,robot_x_cell, robot_y_cell, N)
 
-[robot_x_cell, robot_y_cell] = world2grid(robotPose(1), robotPose(2),size(map,1));
+%[robot_x_cell, robot_y_cell] = world2grid(robotPose(1), robotPose(2),size(map,1));
 
 low_limit_x = max(1,floor(robot_x_cell-N/2));
 high_limit_x = min(size(map,1),floor(robot_x_cell+N/2));
 low_limit_y = max(1,floor(robot_y_cell-N/2));
 high_limit_y = min(size(map,1),floor(robot_y_cell+N/2));
 
-[xc, yc] = find(map);
-cond_x = (xc>low_limit_x & xc<high_limit_x);
-cond_y = (yc>low_limit_y & yc<high_limit_y);
-cell_x = xc(cond_x & cond_y);
-cell_y = yc(cond_x & cond_y);
+
+cond_x = (xCell>low_limit_x & xCell<high_limit_x);
+cond_y = (yCell>low_limit_y & yCell<high_limit_y);
+cell_x = xCell(cond_x & cond_y);
+cell_y = yCell(cond_x & cond_y);
 active_cells = [cell_x, cell_y];
+
 
 window_cm = N/2*5;
 x1=robotPose(1)-window_cm/100;
