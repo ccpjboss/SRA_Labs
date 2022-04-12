@@ -2,7 +2,6 @@ function [fox,foy] = getRepulsive(tbot, x_active, y_active)
 %GETREPULSIVE gets the repulsive force for VFF
 Fcr=-0.5; 
 [x1, y1, ~] = tbot.readPose();
-N=15;
 
 fx=zeros(1,size(x_active,1));
 fy=zeros(1,size(y_active,1));
@@ -17,4 +16,5 @@ end
 
 fox=sum(fx);
 foy=sum(fy);
+
 end
