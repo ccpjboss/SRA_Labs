@@ -7,13 +7,18 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end
 addpath include/
-map = read_map('maps/umap_grid5.png');
+map = zeros(80);
+
+map(:) = 0.5;
+l0 = zeros(80);
+l0(1,:) = 0.2;
+l0(end,:) = 0.2;
+l0(:,1) = 0.2;
+l0(:,end) = 0.2;
 
 n_points = input('How many points?');
 figure(1);
-[map_y,map_x] = find(map);
-%scatter(map_y./20,map_x./20,120,"black","filled")
-axis([0, 4, 0, 4])                % the limits for the current axes [xmin xmax ymin ymax]
+axis([0, 4, 0, 4])
 grid on;             
 [xi,yi]=ginput(n_points);
 
@@ -49,20 +54,26 @@ last_update = tic;
 
 dist = 1;
 
+active_cells = [];
+
 for j = 1:n_points
     dist = 1;
     while (dist>0.1)
     
-        %plotPose(x,y,theta,x_,y_,map, goalPose, n_points, nPose);
-    
-        %active_cells = getActiveArea([x,y],map,20);
-        %[world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
-        %active_cells_world = [world_x, world_y];
+        [scan, xydata, angles] = tbot.readLidar();
+        [x,y,theta] = tbot.readPose();
+        [robotX, robotY] = world2grid(x,y,80);
 
-        
-        [world_x, world_y] = updatemap(tbot, map, x, y, theta);
-    
-        [frx,fry,fox,foy]=VFF(tbot,world_x, world_y,goalPose(j,:));
+        transformMatrix = [cos(theta) -sin(theta) x-0.0305;
+    			           sin(theta) cos(theta) y;
+			               0 0 1];
+
+        xyWorld = transformMatrix*[xydata';ones(1,size(xydata,1))];
+        xyWorld = xyWorld(1:2,:);
+        [xCell, yCell] = world2grid(xyWorld(1,:),xyWorld(2,:),80);
+        map = updateMap(map,xCell,yCell,[robotX, robotY],l0);
+
+        [frx,fry,fox,foy]=VFF(tbot,xyWorld(1:2,:)',goalPose(j,:));
     
         nPose(1) = x + frx;
         nPose(2) = y + fry;
@@ -77,14 +88,30 @@ for j = 1:n_points
         % Computes angular velocity
         nPose(3) = atan2(nPose(2)-y,nPose(1)-x);
         wRobot = Ks*atan2(sin(nPose(3)-theta),cos(nPose(3)-theta));
-    
         tbot.setVelocity(vRobot, wRobot);
     
         [x,y,theta] = tbot.readPose();
         x_ = [x_ x];
         y_ = [y_ y];
         dist = sqrt((goalPose(j,1)-x)^2+(goalPose(j,2)-y)^2);
-    
+
+        figure(2);
+        subplot(2,2,1);
+        rosPlot(scan);
+        subplot(2,2,2);
+        plot(xyWorld(1,:)',xyWorld(2,:)');
+        title('Laser Scan in World Frame')
+        axis([0 4 0 4]);
+        grid minor;
+        subplot(2,2,3);
+        plot(xCell,yCell);
+        title('Discrete map')
+        axis([0 80 0 80]);
+        grid minor;
+        subplot(2,2,4);
+        imshow(rot90(imcomplement(map)),[])
+        title('map')
+        
     end
 end
 
