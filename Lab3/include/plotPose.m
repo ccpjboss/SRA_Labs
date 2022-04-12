@@ -1,7 +1,7 @@
 function plotPose(x, y, theta,x_,y_,map, goalPose, n_points, nPose)
     figure(1); clf; hold on; % clear figure, hold plots
     plot(x, y,'--or', 'MarkerSize', 10)  % display (x,y) location of the robot
-    plot(x_(1:5:end), y_(1:5:end),'--')
+    plot(x_(1:2:end), y_(1:2:end),'--')
     quiver(x,y,cos(theta),sin(theta), 0.1, 'Color','r','LineWidth',1, 'ShowArrowHead',1)
     quiver(x,y,cos(nPose(3)),sin(nPose(3)), 0.1, 'Color','b','LineWidth',1, 'ShowArrowHead',1)
     quiver(0,0,1,0,'r')                 % draw arrow for x-axis 
@@ -21,8 +21,14 @@ function plotPose(x, y, theta,x_,y_,map, goalPose, n_points, nPose)
     end
 
 
-    [map_y,map_x] = find(map);
-    scatter(map_y./20,map_x./20,120,"black","filled")
+    for i = 2:79
+        for j = 2:79
+            if map(i,j) > 0.6
+                %scatter(j/20,i/20,50,"black","filled")
+                plot(j./20,i./20, '--b+', 'LineWidth', 5)
+            end
+        end
+    end
 
 end
 

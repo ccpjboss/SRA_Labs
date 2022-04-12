@@ -8,13 +8,7 @@ if ( ~exist("tbot") )
 end
 addpath include/
 map = zeros(80);
-
 map(:) = 0.5;
-l0 = zeros(80);
-l0(1,:) = 0.2;
-l0(end,:) = 0.2;
-l0(:,1) = 0.2;
-l0(:,end) = 0.2;
 
 n_points = input('How many points?');
 figure(1);
@@ -55,11 +49,15 @@ last_update = tic;
 dist = 1;
 
 active_cells = [];
+l0 = zeros(80);
+l0(1,:) = 0.2;
+l0(end,:) = 0.2;
+l0(:,1) = 0.2;
+l0(:,end) = 0.2;
 
 for j = 1:n_points
     dist = 1;
-    while (dist>0.1)
-    
+    while (dist>0.1) 
         [scan, xydata, angles] = tbot.readLidar();
         [x,y,theta] = tbot.readPose();
         [robotX, robotY] = world2grid(x,y,80);
@@ -72,6 +70,8 @@ for j = 1:n_points
         xyWorld = xyWorld(1:2,:);
         [xCell, yCell] = world2grid(xyWorld(1,:),xyWorld(2,:),80);
         map = updateMap(map,xCell,yCell,[robotX, robotY],l0);
+
+        plotPose(x,y,theta,x_,y_,map, goalPose, n_points, nPose);
 
         [frx,fry,fox,foy]=VFF(tbot,xyWorld(1:2,:)',goalPose(j,:));
     
