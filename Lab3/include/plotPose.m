@@ -23,7 +23,7 @@ function plotPose(x, y, theta,x_,y_,map, goalPose, n_points, nPose)
 
     for i = 2:79
         for j = 2:79
-            if map(i,j) > 0.6
+            if map(i,j) > 0.7
                 %scatter(j/20,i/20,50,"black","filled")
                 plot(j./20,i./20, '--', 'LineWidth', 2, 'Color', 'black', 'Marker','.')
             end

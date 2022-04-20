@@ -10,7 +10,7 @@ c = 0;
 for i=1:size(xyWorld,1) % create a restriction to the number of points, detected by LIDAR, will actually impact repulsive force
     dist = sqrt((xyWorld(i,1)-x)^2+(xyWorld(i,2)-y)^2);
     
-    if dist < 0.5 % save on another matrix the only points with the distance to the robot < 0.5
+    if dist < 0.4 % save on another matrix the only points with the distance to the robot < 0.5
         active_cells(i,:) = xyWorld(i,:);
         c = c + 1;
     end
