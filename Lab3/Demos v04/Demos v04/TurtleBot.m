@@ -9,7 +9,9 @@
 % v01 - initial release 
 % v02 - added setPose() and resetPose() functions [only work in gazebo], angles are now in radians
 % v03 - updated setPose() and readLidar() functions. Added velocity saturation values. Added version number.
+% v04 - updated readLidar() functionality - included polar data, timestap and data selection. Added timestaps.
 %
+
 
 classdef TurtleBot < handle
 
@@ -36,11 +38,9 @@ properties (Access = private)
         if (nargin == 0)                                % no input args
 
             % -> REQUIRES MANUALLY SETTING THE IP ADDRESSES 
-            IP_TURTLEBOT = "192.168.99.134";             % VIRTUAL MACHINE IP 
+            IP_TURTLEBOT = "192.168.1.110";             % VIRTUAL MACHINE IP 
             %IP_TURTLEBOT = "10.206.7.1";               % TURTLE ROBOT IP 
-            IP_HOST_COMPUTER = "10.101.201.140";         % LOCAL IP
-
-
+            IP_HOST_COMPUTER = "192.168.1.100";         % LOCAL IP
 
         elseif (nargin ==2 )                            % two input args
             IP_TURTLEBOT = varargin{1};                 % Assign 1st input arg
@@ -68,8 +68,8 @@ properties (Access = private)
 
         
         
-        % Switch between simulation / real robot
-        if ( strcmp( IP_TURTLEBOT, "10.206.7.1") )  % -> DO NOT CHANGE THESE VALUES 
+        % Switch between simulation / real robots ### DO NOT CHANGE THESE VALUES 
+        if ( strcmp( IP_TURTLEBOT, "10.206.7.1") || strcmp( IP_TURTLEBOT, "10.206.7.2") )  
             obj.isSimulation = 0;           % clear simulation flag (real robot)
         else
             obj.isSimulation = 1;           % set simulation flag (gazebo)
@@ -107,7 +107,7 @@ properties (Access = private)
 
 
         % set version number
-        obj.version = 0.3;
+        obj.version = 0.4;
 
     end
 
@@ -147,7 +147,8 @@ properties (Access = private)
 
     % Reads 2D pose 
     % return (x,y) positon [in meters] and (theta) orientation [rad]
-    function [x,y,theta] = readPose(obj)
+    % ptimestamp - pose reading timestamp (in seconds)
+    function [x, y, theta, ptimestamp] = readPose(obj)
 
         % read data from odom topic 
         odomMsg = receive(obj.odomSub,3);       % read data w/ 3s timeout 
@@ -162,17 +163,20 @@ properties (Access = private)
         % angles in Euler format: ZYX
         %theta = rad2deg( angles(1) ); 
         theta = angles(1);                      % return theta in radians 
+
+        % return pose reading timestamp (ROS time converted in seconds) 
+        ptimestamp = double(odomMsg.Header.Stamp.Sec) + double(odomMsg.Header.Stamp.Nsec) * 1e-9; 
     end
 
 
     % Set 2D pose to (x,y,theta)
-    % note: only works in gazebo 
+    % -> note: only works in gazebo 
     function setPose(obj, x, y, theta)
 
         if( obj.isSimulation )
             
             obj.stop()                      % stop robot 
-            pause(0.05)                     % small delay
+            pause(0.25)                     % force a small delay
 
             obj.gzStateMsg.ModelName = obj.gzBotname;           % set model name
             % set position 
@@ -198,16 +202,70 @@ properties (Access = private)
 
 
     % Reset turtlebot's pose to origin: (x,y,theta) = (0,0,0) 
-    % note: only works in gazebo
+    % -> note: only works in gazebo
     function resetPose(obj)
         obj.setPose(0.0, 0.0, 0.0);     % set pose to origin (forward oriented to x axis)  
     end 
 
 
+
     % Read lidar data
     % - use rosPlot(scanMsg) to display
-    % returns scanMsg structure and measurement data (xydata in cartesian coordinates and corresponding angles)   
-    function [scanMsg, xydata, angles] = readLidar(obj)
+    % scanMsg - laser obj struct (ROS message)
+    % lddata - lidar data struct
+    %       - lddata.Ranges - (radial/polar) distance measurement [meters] (360 x 1) vector
+    %       - lddata.Angles - angular measurement [radians] (360 x 1) vector
+    %       - lddata.Cartesian - X/Y cartesian data (360 x 2) matrix
+    % ldtimestamp - laser scan reading timestamp (in seconds) 
+    % Note: The lsdata (struct field) arrays could have 'Inf' (or zero) values to represent no laser reflections (representing too near or too far readings). Use getInRangeLidarDataIdx(.) and getOutRangeLidarDataIdx(.) functions to select the desired data. 
+    function [scanMsg, lddata, ldtimestamp] = readLidar(obj)
+
+        % read data from lidar topic 
+        scanMsg = receive(obj.lidarSub);
+
+        % return lidar internal data (Ranges, Angles and Cartesian data)
+        lddata = rosReadLidarScan(scanMsg);
+
+        % return laser scan reading time (ROS time converted in seconds) 
+        ldtimestamp = double(scanMsg.Header.Stamp.Sec) + double(scanMsg.Header.Stamp.Nsec) * 1e-9; 
+    end
+
+
+
+    % Get in range lidar data indexs (valid data - obstacles).
+    % Returns the linear indexs of several realated arrays: lsdata.Ranges(vidx), or lsdata.Angles(vidx) or lddata.Cartesian(vidx,:).
+    function [vidx] = getInRangeLidarDataIdx(obj, lddata)
+
+        %Define lidar min and max laser ranges (see: scanMsg.RangeMin and scanMsg.RangeMax)
+        RangeMin = 0.12; 
+        RangeMax = 3.5; 
+
+        % return lsdata.'DATATYPE' indexs of laser redings within range (valid obstacles)  
+        vidx = find( ~isinf( lddata.Ranges ) & lddata.Ranges >= RangeMin & lddata.Ranges <= RangeMax);  
+    end 
+
+
+
+    % Get out of range lidar data indexs (too near or too far readings).
+    % Returns the linear indexs of lsdata.Angles(nidx).
+    function [nidx] = getOutRangeLidarDataIdx(obj, lddata)
+
+        %Define lidar min and max laser ranges (see: scanMsg.RangeMin and scanMsg.RangeMax)
+        RangeMin = 0.12; 
+        RangeMax = 3.5; 
+
+        % return lsdata.'DATATYPE' indexs of out of range readings (too near or too far readings)
+        nidx = find( isinf( lddata.Ranges ) | lddata.Ranges < RangeMin  | lddata.Ranges > RangeMax );
+    end 
+
+
+
+    % Read lidar data [previous version, kept for backward compatibility]
+    % - use rosPlot(scanMsg) to display
+    % scanMsg - laser obj struct (ROS message)
+    % xydata - n x 2 data matrix with valid measurements (in cartesian space X-Y) 
+    % angle - n x 1 data vector (angle value of each measurement) 
+    function [scanMsg, xydata, angles] = readLidar_(obj)
 
         % read data from lidar topic 
         scanMsg = receive(obj.lidarSub);
@@ -220,7 +278,7 @@ properties (Access = private)
     % Destructor: clear the workspace of publishers, subscribers, and other ROS-related objects
     % note: stops robot and disconnects ROS, if class object if deleted.   
     function delete(obj)
-        obj.stop()      % stop robot 
+        obj.stop();     % stop robot 
         rosshutdown     % shutdown ROS
     end
 

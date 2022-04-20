@@ -109,7 +109,9 @@ for j = 1:n_points
         axis([0 80 0 80]);
         grid minor;
         subplot(2,2,4);
-        imshow(rot90(imcomplement(map)),[])
+%         imshow(rot90(imcomplement(map)),[])
+        imshow(rot90(map),[])
+
         title('map')
         
     end
