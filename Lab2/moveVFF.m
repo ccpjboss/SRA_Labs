@@ -7,7 +7,7 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end
 addpath include/
-map = read_map('maps/umap_grid5.png');
+map = read_map('maps/fmap_grid5.png');
 
 n_points = input('How many points?');
 figure(1);

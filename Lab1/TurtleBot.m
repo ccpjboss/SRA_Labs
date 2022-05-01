@@ -35,7 +35,7 @@ properties (Access = private)
             % -> REQUIRES MANUALLY SETTING THE IP ADDRESSES 
             IP_TURTLEBOT = "172.16.218.129";              % VIRTUAL MACHINE IP 
 %             IP_TURTLEBOT = "10.206.7.1";                % TURTLE ROBOT IP 
-            IP_HOST_COMPUTER = "192.168.1.74";          % LOCAL IP
+            IP_HOST_COMPUTER = "10.231.221.111";          % LOCAL IP
 
         elseif (nargin ==2 )    % two input args
             IP_TURTLEBOT = varargin{1};                 % Assign 1st input arg
@@ -99,7 +99,7 @@ properties (Access = private)
     % Reads 2D pose 
     % return (x,y) positon [in meters] and (theta) orientation [rad]
     function [x,y,theta] = readPose(obj)
-        odomMsg = receive(obj.odomSub,3);
+        odomMsg = receive(obj.odomSub,5);
         pose = odomMsg.Pose.Pose;
         x = pose.Position.X;
         y = pose.Position.Y;

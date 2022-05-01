@@ -38,5 +38,4 @@ function h_smooth = getPolarHistogram(world_y, y, world_x, x, theta, alpha, wind
         hp_sum(i-L) = sum(h_padded((i-L):(i+L-1)).*weightArray);    %sector summing array
     end
     h_smooth = hp_sum./div; %calculate H'
-%       h_smooth = h;
 end

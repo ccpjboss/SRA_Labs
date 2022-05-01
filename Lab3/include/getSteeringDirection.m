@@ -25,12 +25,6 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
         return 
     end
 
-    figure(2);
-    subplot(2,1,1)
-    hold on;
-    bar(k_target,1);
-    hold off
-
     b1=(find(diff(Hp1)==-1)); %Find beginning of consecutive clear sectors
     b1 = b1 + 1;
     b2=(find(diff(Hp1)==1)); %Find end of consecutive clear sector
@@ -47,15 +41,14 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
         if (abs(passages(i,1)-passages(i,2)) > 3)
             real_passages(i,:) = passages(i,:);
         end
-    end
-            
+    end           
 
     dist=min(mod((real_passages - k_target),36), mod((k_target - real_passages),36));
     if (dist(1) == dist(2))
         dist(2) = 100000;
     end
     [r,c] = find(dist==min(dist(:)),1);       
-    chosenValley = real_passages(r,:)
+    chosenValley = real_passages(r,:);
     k_chossen = chosenValley(1,c);
 
     %The distance might be the same to two valleys, so we pick the larger one
@@ -74,21 +67,12 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
     smax = 9;
     
     if (abs(chosenValley(1) - chosenValley(end)) > smax)
-        fprintf("WIDE VALLEY\n");
-
         if (k_chossen >chosenValley(1))
             go_theta = k_chossen*rad2deg(alpha)-0.5*smax*rad2deg(alpha);
         else
             go_theta = k_chossen*rad2deg(alpha)+0.5*smax*rad2deg(alpha);
         end
-
     else
-        fprintf("NARROW VALLEY\n");
         go_theta = 0.5*(chosenValley(1)*rad2deg(alpha)+chosenValley(end)*rad2deg(alpha));
     end
-    figure(2);
-    subplot(2,1,1)
-    hold on 
-    bar(go_theta/rad2deg(alpha),1);
-    hold off
 end
