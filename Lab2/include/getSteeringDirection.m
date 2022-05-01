@@ -20,7 +20,7 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
     
     dist = sqrt((goal_pose(1)-x)^2+(goal_pose(2)-y)^2);
 
-    if (all(h_smooth == 0)) || dist < 0.25
+    if (all(h_smooth == 0)) || dist < 0.30
         go_theta = k_target*rad2deg(alpha);
         return 
     end
@@ -28,7 +28,8 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
     figure(2);
     subplot(2,1,1)
     hold on;
-    bar(k_target,1);
+    yl = ylim;
+    bar(k_target,yl(2)/2);
     hold off
 
     b1=(find(diff(Hp1)==-1)); %Find beginning of consecutive clear sectors
@@ -89,6 +90,7 @@ function [go_theta] =getSteeringDirection(h_smooth, goal_pose, x, y,alpha, theta
     figure(2);
     subplot(2,1,1)
     hold on 
-    bar(go_theta/rad2deg(alpha),1);
+    yl = ylim;
+    bar(go_theta/rad2deg(alpha),yl(2)/2);
     hold off
 end

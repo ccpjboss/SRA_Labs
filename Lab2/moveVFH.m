@@ -5,10 +5,10 @@ addpath include/
 %init TurtleBot connection (tbot object), if required
 if ( ~exist("tbot",'var') ) 
     % Note: edit TurtleBot.m to define the robot and local host IP addresses
-    tbot = TurtleBot(); 
+    tbot = TurtleBot();
 end
 
-map = read_map("./maps/fmap_grid5.png");
+map = read_map("./maps/umap_grid5.png");
 
 n_points = input('How many points?');
 figure(1);
@@ -19,7 +19,7 @@ scatter(map_y./20,map_x./20,120,"black","filled")
 axis([0, 4, 0, 4])                % the limits for the current axes [xmin xmax ymin ymax]
 grid on;             
 [xi,yi]=ginput(n_points);
-window_size = 30;
+window_size = 50;
 
 hold off
 for j=1:n_points
