@@ -49,7 +49,7 @@ grid on
 
 last_update=tic;
 
-k_rho = 0.1;
+k_rho = 0.2;
 k_beta = -0.4;
 k_alpha = 1;
 
@@ -68,7 +68,7 @@ rho_=1;
 beta_=1;
 alpha_=1;
 for j=1:1:d
-    while (rho_>0.05 || abs(beta_)>0.07 || abs(alpha_)>0.07)
+    while (rho_>0.05 || abs(beta_)>0.15 || abs(alpha_)>0.15)
         [x,y,theta]=tbot.readPose();
         dx = goal_pose(j,1) - x;
         dy = goal_pose(j,2) - y;

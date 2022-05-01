@@ -38,7 +38,7 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end 
 tbot.resetPose();
-kv = 0.1;
+kv = 0.15;
 ks = 0.5;
 
 dist = 1;
