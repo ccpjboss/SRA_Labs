@@ -2,11 +2,11 @@ close all
 clearvars -except tbot
 addpath include/
 
-% %init TurtleBot connection (tbot object), if required
-% if ( ~exist("tbot",'var') ) 
-%     % Note: edit TurtleBot.m to define the robot and local host IP addresses
-%     tbot = TurtleBot(); 
-% end
+%init TurtleBot connection (tbot object), if required
+if ( ~exist("tbot",'var') ) 
+    % Note: edit TurtleBot.m to define the robot and local host IP addresses
+    tbot = TurtleBot(); 
+end
 
 map_res = 0;
 
