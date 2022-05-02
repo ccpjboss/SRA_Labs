@@ -7,7 +7,11 @@ if ( ~exist("tbot") )
     tbot = TurtleBot(); 
 end
 addpath include/
-map = zeros(80);
+
+answer = inputdlg('Insert cell resolution in cm:');
+map_res = str2double(answer{1});
+map_cell_size = 400/map_res;
+map = zeros(map_cell_size);
 map(:) = 0.5;
 
 answer = inputdlg('How many points?');
@@ -50,14 +54,14 @@ last_update = tic;
 dist = 1;
 
 active_cells = [];
-l0 = zeros(80);
+l0 = zeros(map_cell_size);
 % l0(1,:) = 0.2;
 % l0(end,:) = 0.2;
 % l0(:,1) = 0.2;
 % l0(:,end) = 0.2;
 
 figure(2); 
-map_handle = imshow(zeros(80));
+map_handle = imshow(zeros(map_cell_size));
 v = 0;
 for j = 1:n_points
     dist = 1;
@@ -79,7 +83,7 @@ for j = 1:n_points
         % load obstacle free orientations (angles)  
         freeAng = lddata.Angles(nidx);
         
-        [robotX, robotY] = world2grid(x,y,80);
+        [robotX, robotY] = world2grid(x,y,map_cell_size);
 
         transformMatrix = [cos(theta) -sin(theta) x-0.0305-(v*timeDiff*cos(theta));
             sin(theta) cos(theta) y-(v*timeDiff*sin(theta));
@@ -88,7 +92,7 @@ for j = 1:n_points
         xyWorld = transformMatrix*[xydata';ones(1,size(xydata,1))];
         xyWorld = xyWorld(1:2,:);
 
-        [xCell, yCell] = world2grid(xyWorld(1,:),xyWorld(2,:),80);
+        [xCell, yCell] = world2grid(xyWorld(1,:),xyWorld(2,:),map_cell_size);
         map = updateMap(map,xCell,yCell,[robotX, robotY,theta],l0,freeAng,transformMatrix);
 
         plotPose(x,y,theta,x_,y_,map, goalPose, n_points);
@@ -133,8 +137,8 @@ subplot(1,2,1)
 imshow(flip(map,1));
 subplot(1,2,2)
 colormap('gray')
-surface(1:80,1:80,map);
-axis([1 80 1 80]);
+surface(1:map_cell_size,1:map_cell_size,map);
+axis([1 map_cell_size 1 map_cell_size]);
 title('Final Probabilistic Map')
 
 colorbar

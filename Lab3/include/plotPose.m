@@ -20,7 +20,7 @@ function plotPose(x, y, theta,x_,y_,map, goalPose, n_points)
     end
     
     [r,c] = find(map>0.75);
-    scatter(c./20,r./20,[],[0 0 0],'Marker','.')
+    scatter(c./(size(map,1)/4),r./(size(map,1)/4),[],[0 0 0],'Marker','.')
 
 end
 

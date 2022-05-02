@@ -15,7 +15,7 @@ cell_y = yCell(cond_x & cond_y);
 active_cells = [cell_x, cell_y];
 
 
-window_cm = N/2*5;
+window_cm = N/2*(400/size(map,1));
 x1=robotPose(1)-window_cm/100;
 y1=robotPose(2)-window_cm/100;
 x2=robotPose(1)+window_cm/100;
