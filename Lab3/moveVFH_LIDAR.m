@@ -2,24 +2,33 @@ close all
 clearvars -except tbot
 addpath include/
 
-%init TurtleBot connection (tbot object), if required
-if ( ~exist("tbot",'var') ) 
-    % Note: edit TurtleBot.m to define the robot and local host IP addresses
-    tbot = TurtleBot(); 
+% %init TurtleBot connection (tbot object), if required
+% if ( ~exist("tbot",'var') ) 
+%     % Note: edit TurtleBot.m to define the robot and local host IP addresses
+%     tbot = TurtleBot(); 
+% end
+
+map_res = 0;
+
+while (mod(400,map_res) ~= 0)
+    answer = inputdlg('Insert cell resolution in cm:');
+    map_res = str2double(answer{1});
 end
 
-map = zeros(80);
+map_cell_size = 400/map_res;
+map = zeros(map_cell_size);
 map(:) = 0.5;
 
 answer = inputdlg('How many points?');
 n_points = str2double(answer{1});
 figure(1);
-title(('How many points?'))
+title(('Select the points.'))
 figure(1);
 axis([0, 4, 0, 4]) % the limits for the current axes [xmin xmax ymin ymax]
 grid on;             
 [xi,yi]=ginput(n_points);
-window_size = 30;
+
+window_size = map_cell_size*0.375;
 
 hold off
 for j=1:n_points
@@ -52,14 +61,14 @@ x_ = [];
 y_ = [];
 h_smooth = [];
 
-l0 = zeros(80);
+l0 = zeros(map_cell_size);
 % l0(1,:) = 0.2;
 % l0(end,:) = 0.2;
 % l0(:,1) = 0.2;
 % l0(:,end) = 0.2;
 
 figure(2); 
-map_handle = imshow(zeros(80));
+map_handle = imshow(zeros(map_cell_size));
 v = 0;
 for j=1:n_points
     dist = sqrt((goalPose(j,1)-x)^2+(goalPose(j,2)-y)^2);
@@ -81,7 +90,7 @@ for j=1:n_points
         % load obstacle free orientations (angles)  
         freeAng = lddata.Angles(nidx);
 
-        [robotX, robotY] = world2grid(x,y,80);
+        [robotX, robotY] = world2grid(x,y,map_cell_size);
 
         transformMatrix = [cos(theta) -sin(theta) x-0.0305-(v*timeDiff*cos(theta));
     			           sin(theta) cos(theta) y-(v*timeDiff*sin(theta));
@@ -89,7 +98,7 @@ for j=1:n_points
 
         xyWorld = transformMatrix*[xydata';ones(1,size(xydata,1))];
         xyWorld = xyWorld(1:2,:);
-        [xCell, yCell] = world2grid(xyWorld(1,:),xyWorld(2,:),80);
+        [xCell, yCell] = world2grid(xyWorld(1,:),xyWorld(2,:),map_cell_size);
         map = updateMap(map,xCell,yCell,[robotX, robotY,theta],l0,freeAng, transformMatrix);
         active_cells = getActiveArea([x,y],map,xCell', yCell',robotX, robotY,window_size);
         [world_x, world_y] = grid2world(active_cells(:,1),active_cells(:,2),size(map,1));
@@ -127,12 +136,15 @@ for j=1:n_points
         dist = sqrt((goalPose(j,1)-x)^2+(goalPose(j,2)-y)^2);
     end
 end
+
 figure(2);
 subplot(1,2,1)
 imshow(flip(map,1));
 subplot(1,2,2)
 colormap('gray')
-surface(1:80,1:80,map);
-axis([1 80 1 80]);
+surface(1:map_cell_size,1:map_cell_size,map);
+axis([1 map_cell_size 1 map_cell_size]);
 title('Final Probabilistic Map')
+colorbar;
+
 tbot.stop();
