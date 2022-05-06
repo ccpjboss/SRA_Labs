@@ -1,13 +1,23 @@
 function [newMap] = updateMap(map,cellX,cellY,robotPose,l0,freeAng,transformMatrix)
 map_size = size(map,1);
+% [robot_world_x, robot_world_y] = grid2world(robotPose(1),robotPose(2),map_size);
 
 % Get the free Cells
 freeXY = [1.5*cos(freeAng) 1.5*sin(freeAng)];
 
 xyWorld = transformMatrix*[freeXY';ones(1,size(freeXY,1))];
 xyWorld = xyWorld(1:2,:);
-[freeAX, freeAY] = world2grid(xyWorld(1,:),xyWorld(2,:),map_size);
 
+% lidar_plot = zeros(2,2*size(xyWorld,2));
+% lidar_start_points_angles = linspace(0,2*pi,size(xyWorld,2));
+% %lidar_plot(:,1:2:end) = repmat([robot_world_x;robot_world_y],[1,size(xyWorld,2)]);
+% lidar_plot(:,1:2:end) = [robot_world_x+0.12*cos(lidar_start_points_angles);robot_world_y+0.12*sin(lidar_start_points_angles)];
+% lidar_plot(:,2:2:end) = xyWorld;
+% 
+% figure(1);
+% line(lidar_plot(1,:),lidar_plot(2,:),'LineWidth',0.05);
+
+[freeAX, freeAY] = world2grid(xyWorld(1,:),xyWorld(2,:),map_size);
 freeAX = min(max(freeAX,1),map_size);
 freeAY  = min(max(freeAY,1),map_size);
 
