@@ -1,0 +1,86 @@
+
+-------------------
+Map notes (v02)
+-------------------
+Autonomous Robotic Systems 2022, DEEC, UC 
+
+
+The initial map release had 4 startup maps that required manual placement under the Gazebo environment.
+
+This version has been updated with the following features:  
+    -> new 3D/2D map (scmap).  
+    -> installation scripts for 3D maps & respective configuration files.
+    -> support for automatic placement of maps in Gazebo environment. 
+    -> run scripts to startup everything at once (user@ubuntu:~$ ./start-gazebo-scmap.sh).  
+
+
+-------------------------------------------------
+Map files:
+-------------------------------------------------
+
+Five maps are now provided (with names: csquare, fmap, scmap, stmap and umap).
+In all cases, the working area is 4x4 meters.
+Several occupation grids are available: 
+
+- "map"_grid1.png -> each image pixel represents 1x1 cm of working area (400x400x3 image).
+- "map"_grid5.png -> each image pixel represents 5x5 cm of working area (80x80x3 image).
+- "map"_grid10.png -> each image pixel represents 10x10 cm of working area (40x40x3 image).
+
+Each map also contains a .svg file (map image in vector format) and the corresponding 3D model to load in the Gazebo simulator (in folder "gzb_models"). 
+
+
+-------------------------------------------------
+Installation Notes:
+-------------------------------------------------
+
+[Install]: 
+Copy the entire "maps" folder to the virtual machine (to any location).
+Windows users can use WinSCP (https://winscp.net/) to copy data between you computer and the virtual machine (use a sftp connection). MacOs users can use the Cyberduck App. Linux users just need to write in the location path: sftp://user@192.168.1.xxx (replace with the IP of virtual machine). 
+Some virtual machines also support simple drag-and-drop functionality.      
+
+Open terminal, and navigate to the directory location of the maps folder, and run the install script as:   
+>> user@ubuntu:~$ sh install_maps.sh
+The message "---done---" should appear upon a successful installation. 
+The home folder (/home/user) should hold five new scripts (start-gazebo-"map".sh). 
+
+
+[Uninstall]: 
+Similarly, all maps and respective configuration files can be removed by running the uninstall script. 
+>> user@ubuntu:~$ sh uninstall_maps.sh
+
+
+-------------------------------------------------
+Start up Gazebo+ROS w/ 3D map 
+-------------------------------------------------
+
+Run, in the command line, the script associated with the desired map:    
+
+>> user@ubuntu:~$ ./start-gazebo-csquare.sh 
+>> user@ubuntu:~$ ./start-gazebo-fmap.sh
+>> user@ubuntu:~$ ./start-gazebo-scmap.sh               # use this in lab 04
+>> user@ubuntu:~$ ./start-gazebo-stmap.sh
+>> user@ubuntu:~$ ./start-gazebo-umap.sh    
+
+
+-------------------------------------------------
+Manually place a 3D map in Gazebo (if required)
+-------------------------------------------------
+
+Start up Gazebo+ROS with a empty world: user@ubuntu:~$ ./start-gazebo-empty.sh 
+
+Stop the simulation (in the bottom-left "play" button).
+
+Click in the "Insert Tab" in the left menu (search) and select the desired map.  
+Upon loading the model, manual placing (with the mouse) is required. Place it anywhere. 
+In order to match the 3D model of the map with the 2D grid projections the following pose offsets are required:
+
+- csquare: pose offset: x = 2; y = 2; z = 0 (meters)       
+- umap: pose offset: x = 1.75; y = 2; z = 0 (meters) 
+- fmap: pose offset: x = 2.1; y = 2.1; z = 0 (meters)
+- scmap: pose offset: x = 2; y = 2; z = 0 (meters)
+- stmap: pose offset: x = 2; y = 2; z = 0 (meters)
+
+Go back to the "World" tab, in the left menu. Select the corresponding map model in the "Models" section, and edit the pose property (x,y,z) with the information above.  
+
+Start the simulation.   
+

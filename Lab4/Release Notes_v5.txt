@@ -1,0 +1,118 @@
+
+---------------------------------------
+TurtleBot.m class Release Notes
+---------------------------------------
+Autonomous Robotic Systems 2022, DEEC, UC 
+
+
+# ------------------------------------- 
+# v05 (09/05/2022)
+# ------------------------------------- 
+
+- new readEncodersData() function that returns (simulated) incremental motion for each wheel.
+- new readEncodersDataWithNoise(noise_std) that allows to inject noise in encoders data.
+- new getWheelBaseline() that returns the baseline distance between wheels (b).  
+- minor update to drawTurtleBot(.) external file (optional).
+
+- map updates (see Map Notes.txt): 
+    - new 3D/2D map (scmap).
+    - installation scripts for all maps.
+
+
+Additional notes: 
+
+- the function [dsr, dsl, pose2D, timestamp] = readEncodersData(), returns: 
+    dsr - incremental motion of the right wheel (in meters)
+    dsl - incremental motion of the left wheel (in meters)
+    pose2D - [x,y,theta] 2D pose given by the turtlebot's odometry model
+    timestamp - data reading timestamp (in seconds)
+
+-> the pose2D vector can't be used for pose estimation purposes in lab04   
+
+-> the readEncodersData() and readPose() can't be used together in a loop. However, a single call of readPose(.) is required to startup the initial (internal) data of readEncodersData(), see the template bellow:
+
+-> % recomended template for lab04 
+tbot = TurtleBot(.)     % init TurtleBot
+tbot.setPose(.);        % set initial pose (don't use resetPose(.) in scmap)
+tbot.setVelocity(.);    % set velocities
+[.] = tbot.readPose();  % read pose once (required to startup the encoder data) 
+r = rateControl(5);     % init ratecontrol obj (loop at 5Hz)
+tic;  
+while (toc < 30)        % run for a given time (s)  
+        [.] = tbot.readEncodersData();      % read data from encoders
+        [.] = tbot.readLidar();             % read lidar data
+
+        % ...
+
+        % Display 
+        plot(.)
+        waitfor(r);     % adaptive pause
+end 
+tbot.stop();            % stop robot
+
+  
+
+
+
+# ------------------------------------- 
+# v04 (09/04/2022) 
+# ------------------------------------- 
+
+TurtleBot.m class v04 update:  
+
+- updated readLidar() functionality (added polar data readings, data selection and timestamp, see bellow).
+- new lidar data selection functions: getInRangeLidarDataIdx(.) and getOutRangeLidarDataIdx(.).  
+- the previous readLidar() routine is kept for backward compatibility, now called 'readLidar_()'.  
+- added timestamp to readPose() and readLidar().
+- reserved a IP for a 2nd TurtleBot robot.
+
+- external file w/ drawTurtleBot(.) function that allows to display a robot in a matlab figure (optional).  
+
+
+Additional notes: 
+
+The lidar readings data (lddata) is now a struct with the following fields:   
+    lddata.Ranges - (radial/polar) distance measurement [meters] (360 x 1) vector.
+    lddata.Angles - angular measurement [radians] (360 x 1) vector.
+    lddata.Cartesian - X/Y cartesian data (360 x 2) matrix.
+The lsdata (struct field) arrays could have 'Inf' (or zero) values to represent no laser reflections (representing too near or too far readings). Use getInRangeLidarDataIdx(.) and getOutRangeLidarDataIdx(.) functions to select the desired data (see demoLidar.m). 
+
+The pose reading and lidar scan now have timestamps. The diference between these measurements (together with the current estimate of the velocity) can be used to minimize the lidar data deviation when converting from lidar (centred) readings into world coordinates. 
+
+
+
+# ------------------------------------- 
+# v03 (13/03/2022) 
+# ------------------------------------- 
+
+TurtleBot.m class v03 update:  
+
+- Updated setPose(x,y,theta) and resetPose() functions (improvements and bug fixes).
+- The setVelocity(v,w) now clips the velocities (v,w) by the maximum allowed by the robot (v_max = 0.22 m/s, w_max = 2.84 rad/s).
+- The readLidar() function also returns readings to Cartesian coordinates.
+
+- map updates (see Map Notes.txt) 
+    - 4 startup maps (csquare, fmap, stmap and umap).  
+
+
+# ------------------------------------- 
+# v02 (25/02/2022) 
+# ------------------------------------- 
+
+TurtleBot.m class v02 update: 
+
+- Usability improvements in the constructor:  the robot's object can be initialized as tbot = TurtleBot(IP_TURTLEBOT, IP_HOST_COMPUTER) directly (however, the standard constructor remains available). 
+- All angles are now expressed in radians. Please make the necessary adjustments on your code. 
+- New resetPose() method that allows to reset the location to the robot in gazebo (without the need of manual intervention).
+- New setPose(x,y,theta) method that allows to place the robot at a given pose. 
+- Note: resetPose() and  setPose(.) functions only work when using gazebo (not in the real TurtleBot robot). 
+
+The previously provided demos (demoPose.m and demoLidar.m) were also been updated with some of these features.  
+
+
+# ------------------------------------- 
+# v01 (14/02/2022) 
+# ------------------------------------- 
+
+- initial release. 
+
