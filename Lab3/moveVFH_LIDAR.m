@@ -142,8 +142,8 @@ subplot(1,2,1)
 imshow(flip(map,1));
 subplot(1,2,2)
 colormap('gray')
+axis([1 map_cell_size 1 map_cell_size])
 surface(1:map_cell_size,1:map_cell_size,map);
-axis([1 map_cell_size 1 map_cell_size]);
 title('Final Probabilistic Map')
 colorbar;
 
