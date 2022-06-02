@@ -26,7 +26,7 @@ not_update = dead_reckoning;
 ground_truth = [2.0; 1.0; 0];
 b = tbot.getWheelBaseline();
 
-C_p = diag([0.025 0.025 deg2rad(1)]).^2; % 0.01 (meters) and 1 degree
+C_p = diag([0.09 0.09 deg2rad(1)]).^2; % 0.01 (meters) and 1 degree
 
 lidar_max_dist = 2; % 2 meters max Lidar reading
 
@@ -43,13 +43,12 @@ while (toc < 67) % run for a given time (s)
     s = [];
 
     %% Prediction
-    [dsr, dsl, pose2D, timestamp] = tbot.readEncodersData(); % read data from encoders
-%     [dsr, dsl, pose2D, timestamp] = tbot.readEncodersDataWithNoise([0.001, 0.001]); % read data from encoders
+    [dsr, dsl, pose2D, timestamp] = tbot.readEncodersDataWithNoise([0.009, 0.009]); % read data from encoders
 
     ground_truth = pose2D;
     [scanMsg, lddata, ldtimestamp] = tbot.readLidar();
 
-    C_u = diag([0.001*dsr 0.001*dsl]);
+    C_u = diag([0.0005*dsr 0.0005*dsl]);
 
     dead_reckoning = getDeadReckoning(dead_reckoning, dsr, dsl, b+0.03); % eq 7
     not_update = getDeadReckoning(not_update, dsr, dsl, b+0.03);
