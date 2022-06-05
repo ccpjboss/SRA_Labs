@@ -35,7 +35,7 @@ ekf = [];
 predit = [];
 
 tic;
-while (toc < 67) % run for a given time (s)
+while (toc < 2*67) % run for a given time (s)
 
     v_valid = [];
     valid_J_g = [];
@@ -44,64 +44,62 @@ while (toc < 67) % run for a given time (s)
 
     %% Prediction
     [dsr, dsl, pose2D, timestamp] = tbot.readEncodersData(); % read data from encoders
-%     [dsr, dsl, pose2D, timestamp] = tbot.readEncodersDataWithNoise([0.001, 0.001]); % read data from encoders
+    [scanMsg, lddata, ldtimestamp] = tbot.readLidar();
 
     ground_truth = pose2D;
-    [scanMsg, lddata, ldtimestamp] = tbot.readLidar();
 
     C_u = diag([0.001*dsr 0.001*dsl]);
 
-    dead_reckoning = getDeadReckoning(dead_reckoning, dsr, dsl, b+0.03); % eq 7
-    not_update = getDeadReckoning(not_update, dsr, dsl, b+0.03);
-    
+    dead_reckoning = getDeadReckoning(dead_reckoning, dsr, dsl, b+0.03); % This is used in the prediction stage
+    not_update = getDeadReckoning(not_update, dsr, dsl, b+0.03);         % This call is just used for reference
+
     [xEst_cell, yEst_cell] = world2grid(dead_reckoning(1),dead_reckoning(2),80);
-    
+
     %clip the values
     xEst_cell = min(max(xEst_cell,1),80);
     yEst_cell  = min(max(yEst_cell,1),80);
 
-    C_p = getMotionError(C_p,C_u,dead_reckoning, dsr, dsl, b+0.03); % eq 8
-
+    C_p = getMotionError(C_p,C_u,dead_reckoning, dsr, dsl, b+0.03); % Get position covariance
     %% Observation
     lidar_angles = linspace(0,2*pi,360); % Get lidar angles with alpha = 1 degree
     xy = [lidar_max_dist*cos(lidar_angles); lidar_max_dist*sin(lidar_angles)]; % Get xy from distant cells
-    
+
     transformMatrix = [cos(dead_reckoning(3)) -sin(dead_reckoning(3)) dead_reckoning(1)-0.0305*cos(dead_reckoning(3)); % Transformation Lidar -> World
         sin(dead_reckoning(3)) cos(dead_reckoning(3)) dead_reckoning(2)-0.0305*sin(dead_reckoning(3));
         0 0 1];
 
     xyWorld = transformMatrix*[xy;ones(1,size(xy,2))];
     xyWorld = [xyWorld(1,:)',xyWorld(2,:)'];
-    
+
     [cell_x, cell_y] = world2grid(xyWorld(:,1),xyWorld(:,2),80);
 
     %clip the values
     cell_x = min(max(cell_x,1),80);
     cell_y  = min(max(cell_y,1),80);
-    
+
     g_est = [];
     x_obs = [];
     y_obs = [];
     J_g = [];
 
     invalid = 1;
-    for i=1:size(cell_x,1)
-        [xl, yl] = bresenham(xEst_cell,yEst_cell,cell_x(i),cell_y(i));
-        for j = 1:size(xl,1)
-            if (map(yl(j),xl(j)) == 1)
+    for i=1:size(cell_x,1) % For each cell
+        [xl, yl] = bresenham(xEst_cell,yEst_cell,cell_x(i),cell_y(i)); % Get cells in between
+        for j = 1:size(xl,1) % For each cell in between
+            if (map(yl(j),xl(j)) == 1) % If cell is occupied
                 invalid = 0;
-                
+
                 [x_aux, y_aux] = grid2world(xl(j),yl(j), 80);
                 x_obs = [x_obs;x_aux];
                 y_obs = [y_obs;y_aux];
 
-                g = sqrt((dead_reckoning(1)-x_aux)^2+(dead_reckoning(2)-y_aux)^2);
+                g = sqrt((dead_reckoning(1)-x_aux)^2+(dead_reckoning(2)-y_aux)^2); % Get sensor model value ...
                 g_est = [g_est;g];
-                J_g(:,:,i) = getJacobianObs(dead_reckoning,x_aux,y_aux);
+                J_g(:,:,i) = getJacobianObs(dead_reckoning,x_aux,y_aux); % ...and its corresponding Jacobian
                 break
             end
         end
-        if invalid == 1
+        if invalid == 1 % If it never finds an occupied cell the value is NaN
             g_est = [g_est;nan];
         end
         invalid = 1;
@@ -109,9 +107,10 @@ while (toc < 67) % run for a given time (s)
 
     lidar_test = transformMatrix*[lddata.Cartesian';ones(1,size(lddata.Cartesian,1))];
     lidar_test = [lidar_test(1,:)',lidar_test(2,:)'];
-    g_true = lddata.Ranges;
-    v = g_true - g_est;
-    [row,~] = find(~(isnan(v)));
+    g_true = lddata.Ranges; % Get Lidar true distances
+
+    v = g_true - g_est; % Inovation
+    [row,~] = find(~(isnan(v))); % Discard invalid values
 
     e = 1;
     for i = 1:size(row,1)
@@ -125,12 +124,12 @@ while (toc < 67) % run for a given time (s)
             R(i) = R_aux;
         end
     end
-    
+
     inov_cov = valid_J_g*C_p*valid_J_g'+diag(R); % eq 17
     Kalman_gain = C_p*valid_J_g'*pinv(inov_cov); % eq 18
 
-    dead_reckoning = dead_reckoning + Kalman_gain*v_valid';
-    C_p = C_p-Kalman_gain*inov_cov*Kalman_gain';
+    dead_reckoning = dead_reckoning + Kalman_gain*v_valid'; % Update position with the Kalman Gain and Inovation
+    C_p = C_p-Kalman_gain*inov_cov*Kalman_gain'; % Update position covariance
 
     % Display
     figure(1)
@@ -139,7 +138,7 @@ while (toc < 67) % run for a given time (s)
     gt = [gt;ground_truth(1) ground_truth(2)];
     predit = [predit;not_update(1) not_update(2)];
     ekf = [ekf;dead_reckoning(1) dead_reckoning(2)];
-    
+
     plot(not_update(1), not_update(2), '.m');
     plot(ground_truth(1), ground_truth(2), '.b');
     plot(dead_reckoning(1), dead_reckoning(2), '.g');

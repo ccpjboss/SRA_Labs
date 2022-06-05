@@ -19,14 +19,14 @@ u = [0.1; 0.1];                              % circle R=1 around the central squ
 pause(2);
 tbot.setVelocity(u(1), u(2));                % set velocities
 [x, y, theta, ptimestamp] = tbot.readPose(); % read pose once (required to startup the encoder data)
-r = rateControl(5);                          % init ratecontrol obj (loop at 5Hz)
+r = rateControl(10);                          % init ratecontrol obj (loop at 5Hz)
 
 dead_reckoning = [2.0; 1.0; 0];
 not_update = dead_reckoning;
 ground_truth = [2.0; 1.0; 0];
 b = tbot.getWheelBaseline();
 
-C_p = diag([0.09 0.09 deg2rad(1)]).^2; % 0.01 (meters) and 1 degree
+C_p = diag([0.08 0.08 deg2rad(1)]).^2; % 0.01 (meters) and 1 degree
 
 lidar_max_dist = 2; % 2 meters max Lidar reading
 
@@ -43,15 +43,15 @@ while (toc < 67) % run for a given time (s)
     s = [];
 
     %% Prediction
-    [dsr, dsl, pose2D, timestamp] = tbot.readEncodersDataWithNoise([0.009, 0.009]); % read data from encoders
+    [dsr, dsl, pose2D, timestamp] = tbot.readEncodersDataWithNoise([0.005, 0.005]); % read data from encoders with noise
 
     ground_truth = pose2D;
     [scanMsg, lddata, ldtimestamp] = tbot.readLidar();
 
     C_u = diag([0.0005*dsr 0.0005*dsl]);
 
-    dead_reckoning = getDeadReckoning(dead_reckoning, dsr, dsl, b+0.03); % eq 7
-    not_update = getDeadReckoning(not_update, dsr, dsl, b+0.03);
+    dead_reckoning = getDeadReckoning(dead_reckoning, dsr, dsl, b); % This is used in the prediction stage
+    not_update = getDeadReckoning(not_update, dsr, dsl, b);         % This call is just used for reference
     
     [xEst_cell, yEst_cell] = world2grid(dead_reckoning(1),dead_reckoning(2),80);
     
@@ -59,7 +59,7 @@ while (toc < 67) % run for a given time (s)
     xEst_cell = min(max(xEst_cell,1),80);
     yEst_cell  = min(max(yEst_cell,1),80);
 
-    C_p = getMotionError(C_p,C_u,dead_reckoning, dsr, dsl, b+0.03); % eq 8
+    C_p = getMotionError(C_p,C_u,dead_reckoning, dsr, dsl, b); % Return the position covariance
 
     %% Observation
     lidar_angles = linspace(0,2*pi,360); % Get lidar angles with alpha = 1 degree
